@@ -3,6 +3,8 @@ import os
 import re
 import requests
 from bs4 import BeautifulSoup
+from selenium import webdriver
+
 
 def champion_info_from(url):
 
@@ -12,8 +14,8 @@ def champion_info_from(url):
     url_content = requests.get(url)
     if url_content.status_code != 200:
         return ''
-    raw_info = BeautifulSoup(url_content.text , 'lxml')
     info_entry = []
+    raw_info = BeautifulSoup(url_content.text , 'lxml')
 
     info_entry.append(ability_value_of('champion_name'))
     info_entry.append(ability_value_of('champintro-stats__info-name-en'))
@@ -39,13 +41,14 @@ def champion_info_from(url):
     return '\t'.join(info_entry)+'\n'
 
 
-with open('champion.txt' , 'r' , encoding = 'utf8') as champion_list_source:
-    content = champion_list_source.read()
+browser = webdriver.PhantomJS()
+browser.get('https://lol.garena.tw/game/champion')
+content = browser.page_source
 
-pattern = 'https...lol.garena.tw.game.champion.\S+'
-urls = re.findall(pattern , content)
+soup_content = BeautifulSoup(content , 'lxml')
+urls = soup_content.find_all('a' , class_ = 'champlist-item__link')
 
 with open('lol_champion_info.txt' , 'w') as champion_info:
     champion_info.write('英雄\t名稱\t生命\t生命成長\t生命回復\t生命回復成長\t魔力\t魔力成長\t魔力回復\t魔力回復成長\t移動速度\t物理攻擊\t物理攻擊成長\t攻擊速度\t攻擊速度成長\t攻擊距離\t物理防禦\t物理防禦成長\t魔法防禦\t魔法防禦成長\n')
     for url in urls:
-        champion_info.write(champion_info_from(url[:-1]))
+        champion_info.write(champion_info_from('https://lol.garena.tw' + url['href']))
