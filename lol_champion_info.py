@@ -98,7 +98,7 @@ urls = re.findall(pattern , content)
 
 for url in urls:
     print(url[:-1])
-    os.system("wget " + url[:-1] + " --secure-protocol=TLSv1 --no-check-certificate --directory-prefix=lolchampion/")
+    os.system("wget " + url[:-1] + " --no-check-certificate --directory-prefix=lolchampion/")
 
 champion_list_source.close()
 
