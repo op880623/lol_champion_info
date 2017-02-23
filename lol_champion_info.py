@@ -10,6 +10,8 @@ def champion_info_from(url):
         return raw_info.find('span' , class_=entry).string
 
     url_content = requests.get(url)
+    if url_content.status_code != 200:
+        return ''
     raw_info = BeautifulSoup(url_content.text , 'lxml')
     info_entry = []
 
